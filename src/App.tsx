@@ -393,14 +393,14 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
-  if (!isLoggedIn) {
-    return <Login onLogin={() => setIsLoggedIn(true)} />;
-  }
-
   const activeProject = useMemo(() => 
     projects.find(p => p.id === activeProjectId), 
     [projects, activeProjectId]
   );
+
+  if (!isLoggedIn) {
+    return <Login onLogin={() => setIsLoggedIn(true)} />;
+  }
 
   const addProject = () => {
     if (!newProjectName.trim()) return;
