@@ -1109,8 +1109,10 @@ function AddTaskInput({ onAdd }: { onAdd: (title: string, priority: Priority, re
   const [recurrence, setRecurrence] = useState<Recurrence>('none');
   const [dueDate, setDueDate] = useState('');
   const [isKaizen, setIsKaizen] = useState(false);
-  const [kaizenBase, setKaizenBase] = useState('10'); // minutes
-  const [kaizenImprove, setKaizenImprove] = useState('1'); // minutes
+  const [kaizenBaseMin, setKaizenBaseMin] = useState('10');
+  const [kaizenBaseSec, setKaizenBaseSec] = useState('0');
+  const [kaizenImproveMin, setKaizenImproveMin] = useState('1');
+  const [kaizenImproveSec, setKaizenImproveSec] = useState('0');
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -1118,14 +1120,18 @@ function AddTaskInput({ onAdd }: { onAdd: (title: string, priority: Priority, re
     if (!title.trim()) return;
     onAdd(title, priority, recurrence, dueDate || undefined, {
       isKaizen,
-      baseTime: parseInt(kaizenBase) * 60,
-      improvement: parseInt(kaizenImprove) * 60
+      baseTime: (parseInt(kaizenBaseMin) || 0) * 60 + (parseInt(kaizenBaseSec) || 0),
+      improvement: (parseInt(kaizenImproveMin) || 0) * 60 + (parseInt(kaizenImproveSec) || 0)
     });
     setTitle('');
     setPriority('medium');
     setRecurrence('none');
     setDueDate('');
     setIsKaizen(false);
+    setKaizenBaseMin('10');
+    setKaizenBaseSec('0');
+    setKaizenImproveMin('1');
+    setKaizenImproveSec('0');
     setIsExpanded(false);
   };
 
@@ -1231,24 +1237,48 @@ function AddTaskInput({ onAdd }: { onAdd: (title: string, priority: Priority, re
               </div>
 
               {isKaizen && (
-                <div className="flex items-center gap-4 bg-brand-50/50 p-2 rounded-xl border border-brand-100">
+                <div className="flex flex-wrap items-center gap-4 bg-brand-50/50 p-2 rounded-xl border border-brand-100">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-brand-600 uppercase">Base (min):</span>
-                    <input 
-                      type="number" 
-                      className="w-12 px-1 py-0.5 text-xs bg-white border border-brand-200 rounded focus:ring-1 focus:ring-brand-500"
-                      value={kaizenBase}
-                      onChange={(e) => setKaizenBase(e.target.value)}
-                    />
+                    <span className="text-[10px] font-bold text-brand-600 uppercase">Base:</span>
+                    <div className="flex items-center gap-1">
+                      <input 
+                        type="number" 
+                        className="w-10 px-1 py-0.5 text-xs bg-white border border-brand-200 rounded focus:ring-1 focus:ring-brand-500"
+                        value={kaizenBaseMin}
+                        onChange={(e) => setKaizenBaseMin(e.target.value)}
+                        placeholder="Min"
+                      />
+                      <span className="text-[10px] text-brand-400">m</span>
+                      <input 
+                        type="number" 
+                        className="w-10 px-1 py-0.5 text-xs bg-white border border-brand-200 rounded focus:ring-1 focus:ring-brand-500"
+                        value={kaizenBaseSec}
+                        onChange={(e) => setKaizenBaseSec(e.target.value)}
+                        placeholder="Sec"
+                      />
+                      <span className="text-[10px] text-brand-400">s</span>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-brand-600 uppercase">Improve (min):</span>
-                    <input 
-                      type="number" 
-                      className="w-12 px-1 py-0.5 text-xs bg-white border border-brand-200 rounded focus:ring-1 focus:ring-brand-500"
-                      value={kaizenImprove}
-                      onChange={(e) => setKaizenImprove(e.target.value)}
-                    />
+                    <span className="text-[10px] font-bold text-brand-600 uppercase">Improve:</span>
+                    <div className="flex items-center gap-1">
+                      <input 
+                        type="number" 
+                        className="w-10 px-1 py-0.5 text-xs bg-white border border-brand-200 rounded focus:ring-1 focus:ring-brand-500"
+                        value={kaizenImproveMin}
+                        onChange={(e) => setKaizenImproveMin(e.target.value)}
+                        placeholder="Min"
+                      />
+                      <span className="text-[10px] text-brand-400">m</span>
+                      <input 
+                        type="number" 
+                        className="w-10 px-1 py-0.5 text-xs bg-white border border-brand-200 rounded focus:ring-1 focus:ring-brand-500"
+                        value={kaizenImproveSec}
+                        onChange={(e) => setKaizenImproveSec(e.target.value)}
+                        placeholder="Sec"
+                      />
+                      <span className="text-[10px] text-brand-400">s</span>
+                    </div>
                   </div>
                 </div>
               )}
@@ -1341,8 +1371,10 @@ function EditTaskModal({
   const [recurrence, setRecurrence] = useState<Recurrence>(task.recurrence);
   const [dueDate, setDueDate] = useState(task.dueDate ? task.dueDate.split('T')[0] : '');
   const [isKaizen, setIsKaizen] = useState(task.isKaizen || false);
-  const [kaizenBase, setKaizenBase] = useState(task.kaizenBaseTime ? (task.kaizenBaseTime / 60).toString() : '10');
-  const [kaizenImprove, setKaizenImprove] = useState(task.kaizenDailyImprovement ? (task.kaizenDailyImprovement / 60).toString() : '1');
+  const [kaizenBaseMin, setKaizenBaseMin] = useState(task.kaizenBaseTime ? Math.floor(task.kaizenBaseTime / 60).toString() : '10');
+  const [kaizenBaseSec, setKaizenBaseSec] = useState(task.kaizenBaseTime ? (task.kaizenBaseTime % 60).toString() : '0');
+  const [kaizenImproveMin, setKaizenImproveMin] = useState(task.kaizenDailyImprovement ? Math.floor(task.kaizenDailyImprovement / 60).toString() : '1');
+  const [kaizenImproveSec, setKaizenImproveSec] = useState(task.kaizenDailyImprovement ? (task.kaizenDailyImprovement % 60).toString() : '0');
 
   return (
     <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
@@ -1433,24 +1465,58 @@ function EditTaskModal({
           </div>
 
           {isKaizen && (
-            <div className="grid grid-cols-2 gap-4 bg-brand-50 p-4 rounded-2xl border border-brand-100">
-              <div>
-                <label className="block text-[10px] font-bold text-brand-600 uppercase mb-1">Base (min)</label>
-                <input 
-                  type="number" 
-                  className="w-full px-3 py-2 bg-white border border-brand-200 rounded-xl focus:ring-2 focus:ring-brand-500 text-sm"
-                  value={kaizenBase}
-                  onChange={(e) => setKaizenBase(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-brand-600 uppercase mb-1">Improve (min)</label>
-                <input 
-                  type="number" 
-                  className="w-full px-3 py-2 bg-white border border-brand-200 rounded-xl focus:ring-2 focus:ring-brand-500 text-sm"
-                  value={kaizenImprove}
-                  onChange={(e) => setKaizenImprove(e.target.value)}
-                />
+            <div className="grid grid-cols-1 gap-4 bg-brand-50 p-4 rounded-2xl border border-brand-100">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-bold text-brand-600 uppercase mb-1">Base Time</label>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 flex items-center gap-1">
+                      <input 
+                        type="number" 
+                        className="w-full px-3 py-2 bg-white border border-brand-200 rounded-xl focus:ring-2 focus:ring-brand-500 text-sm"
+                        value={kaizenBaseMin}
+                        onChange={(e) => setKaizenBaseMin(e.target.value)}
+                        placeholder="Min"
+                      />
+                      <span className="text-xs text-brand-400">m</span>
+                    </div>
+                    <div className="flex-1 flex items-center gap-1">
+                      <input 
+                        type="number" 
+                        className="w-full px-3 py-2 bg-white border border-brand-200 rounded-xl focus:ring-2 focus:ring-brand-500 text-sm"
+                        value={kaizenBaseSec}
+                        onChange={(e) => setKaizenBaseSec(e.target.value)}
+                        placeholder="Sec"
+                      />
+                      <span className="text-xs text-brand-400">s</span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-brand-600 uppercase mb-1">Daily Improvement</label>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 flex items-center gap-1">
+                      <input 
+                        type="number" 
+                        className="w-full px-3 py-2 bg-white border border-brand-200 rounded-xl focus:ring-2 focus:ring-brand-500 text-sm"
+                        value={kaizenImproveMin}
+                        onChange={(e) => setKaizenImproveMin(e.target.value)}
+                        placeholder="Min"
+                      />
+                      <span className="text-xs text-brand-400">m</span>
+                    </div>
+                    <div className="flex-1 flex items-center gap-1">
+                      <input 
+                        type="number" 
+                        className="w-full px-3 py-2 bg-white border border-brand-200 rounded-xl focus:ring-2 focus:ring-brand-500 text-sm"
+                        value={kaizenImproveSec}
+                        onChange={(e) => setKaizenImproveSec(e.target.value)}
+                        placeholder="Sec"
+                      />
+                      <span className="text-xs text-brand-400">s</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -1469,8 +1535,8 @@ function EditTaskModal({
                 recurrence, 
                 dueDate: dueDate || undefined,
                 isKaizen,
-                kaizenBaseTime: parseInt(kaizenBase) * 60,
-                kaizenDailyImprovement: parseInt(kaizenImprove) * 60,
+                kaizenBaseTime: (parseInt(kaizenBaseMin) || 0) * 60 + (parseInt(kaizenBaseSec) || 0),
+                kaizenDailyImprovement: (parseInt(kaizenImproveMin) || 0) * 60 + (parseInt(kaizenImproveSec) || 0),
                 kaizenStartDate: task.kaizenStartDate || new Date().toISOString()
               })}
               className="flex-1 py-3 bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 transition-all shadow-lg shadow-brand-200"
