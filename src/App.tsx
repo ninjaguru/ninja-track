@@ -136,7 +136,15 @@ function Login() {
       }
     } catch (err: any) {
       console.error(err);
-      setError('Failed to sign in with Google. Please try again.');
+      if (err.code === 'auth/popup-blocked') {
+        setError('Login popup was blocked. Please enable popups for this site.');
+      } else if (err.code === 'auth/unauthorized-domain') {
+        setError('This domain is not authorized for Google Sign-in. Please add it in the Firebase Console.');
+      } else if (err.code === 'auth/cancelled-popup-request') {
+        setError('Login was cancelled. Please try again.');
+      } else {
+        setError(`Login failed: ${err.message || 'Please try again.'}`);
+      }
     } finally {
       setLoading(false);
     }
