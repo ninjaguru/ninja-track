@@ -19,6 +19,14 @@ export interface Task {
   timeLogs: TimeLog[];
   isTimerRunning: boolean;
   lastTimerStart?: string;
+  parentId?: string;
+  projectId: string;
+  ownerId: string;
+  // Kaizen fields
+  isKaizen?: boolean;
+  kaizenBaseTime?: number; // in seconds
+  kaizenDailyImprovement?: number; // in seconds
+  kaizenStartDate?: string;
 }
 
 export interface Project {
@@ -26,6 +34,8 @@ export interface Project {
   name: string;
   description: string;
   color: string;
+  emoji?: string;
   tasks: Task[];
   createdAt: string;
+  ownerId: string;
 }
