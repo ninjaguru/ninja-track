@@ -1332,6 +1332,9 @@ function EditTaskModal({
   const [priority, setPriority] = useState<Priority>(task.priority);
   const [recurrence, setRecurrence] = useState<Recurrence>(task.recurrence);
   const [dueDate, setDueDate] = useState(task.dueDate ? task.dueDate.split('T')[0] : '');
+  const [isKaizen, setIsKaizen] = useState(task.isKaizen || false);
+  const [kaizenBase, setKaizenBase] = useState(task.kaizenBaseTime ? (task.kaizenBaseTime / 60).toString() : '10');
+  const [kaizenImprove, setKaizenImprove] = useState(task.kaizenDailyImprovement ? (task.kaizenDailyImprovement / 60).toString() : '1');
 
   return (
     <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
@@ -1408,6 +1411,42 @@ function EditTaskModal({
             </div>
           </div>
 
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={() => setIsKaizen(!isKaizen)}
+              className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${
+                isKaizen ? 'bg-brand-100 text-brand-700 ring-2 ring-brand-500' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+              }`}
+            >
+              <Zap size={16} />
+              {isKaizen ? 'Kaizen Tracking Enabled' : 'Enable Kaizen Tracking'}
+            </button>
+          </div>
+
+          {isKaizen && (
+            <div className="grid grid-cols-2 gap-4 bg-brand-50 p-4 rounded-2xl border border-brand-100">
+              <div>
+                <label className="block text-[10px] font-bold text-brand-600 uppercase mb-1">Base (min)</label>
+                <input 
+                  type="number" 
+                  className="w-full px-3 py-2 bg-white border border-brand-200 rounded-xl focus:ring-2 focus:ring-brand-500 text-sm"
+                  value={kaizenBase}
+                  onChange={(e) => setKaizenBase(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-brand-600 uppercase mb-1">Improve (min)</label>
+                <input 
+                  type="number" 
+                  className="w-full px-3 py-2 bg-white border border-brand-200 rounded-xl focus:ring-2 focus:ring-brand-500 text-sm"
+                  value={kaizenImprove}
+                  onChange={(e) => setKaizenImprove(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-3 pt-4">
             <button 
               onClick={onClose}
@@ -1416,7 +1455,16 @@ function EditTaskModal({
               Cancel
             </button>
             <button 
-              onClick={() => onSave({ title, priority, recurrence, dueDate: dueDate || undefined })}
+              onClick={() => onSave({ 
+                title, 
+                priority, 
+                recurrence, 
+                dueDate: dueDate || undefined,
+                isKaizen,
+                kaizenBaseTime: parseInt(kaizenBase) * 60,
+                kaizenDailyImprovement: parseInt(kaizenImprove) * 60,
+                kaizenStartDate: task.kaizenStartDate || new Date().toISOString()
+              })}
               className="flex-1 py-3 bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 transition-all shadow-lg shadow-brand-200"
             >
               Save Changes
