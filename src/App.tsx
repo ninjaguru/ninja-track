@@ -1325,7 +1325,7 @@ function getNextDueDate(recurrence: Recurrence, fromDate: string = new Date().to
 }
 
 function getKaizenGoal(task: Task) {
-  if (!task.isKaizen || !task.kaizenBaseTime || !task.kaizenDailyImprovement || !task.kaizenStartDate) return 0;
+  if (!task.isKaizen || task.kaizenBaseTime === undefined || task.kaizenDailyImprovement === undefined || !task.kaizenStartDate) return 0;
   const start = new Date(task.kaizenStartDate).getTime();
   const now = new Date().getTime();
   const days = Math.floor((now - start) / (1000 * 60 * 60 * 24));
